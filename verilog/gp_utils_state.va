@@ -1,0 +1,24 @@
+// multiplier two vectors
+// ans = A * B
+`define dot_s(A, B, ans, i)\
+  ans = 0;\
+  for (i = 0; i < `N_S; i = i + 1) begin\
+    ans = ans + A[i] * B[i];\
+  end
+
+// generate covariance between trainX and newX
+// newX[0:`X_DIM_S-1], trainX[0:`X_DIM_S-1][0:`N_S-1], lengthscale[0:`X_DIM_S-1], variance;
+`define culc_kx_s(newX, trainX, lengthscale, variance, kxx, i, j)\
+  for (i = 0; i < `N_S; i = i + 1) begin\
+    kxx[i] = 0;\
+    /* calculation the distance */\
+    for (j = 0; j < `X_DIM_S; j = j + 1) begin\
+      kxx[i] = kxx[i] + pow(newX[j] - trainX[`X_DIM_S * i + j], 2) / pow(lengthscale[j], 2);\
+    end\
+    /* RBF kernel */\
+    kxx[i] = variance * exp(-0.5 * kxx[i]);\
+  end
+
+`define gp_s(newX, Xu, lengthscale, variance, kxx, w_vec, Ids, i, j)\
+  `culc_kx_s(newX, Xu, lengthscale, variance, kxx, i, j);\
+  `dot_s(kxx, w_vec, Ids, i);

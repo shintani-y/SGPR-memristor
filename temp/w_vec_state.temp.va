@@ -1,0 +1,4 @@
+// woodbury vector
+`define W_VEC_S {\
+$w
+};

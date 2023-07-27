@@ -1,0 +1,16 @@
+name: py36_sgpr
+channels:
+  - anaconda
+  - conda-forge
+  - defaults
+dependencies:
+  - gpy=1.10.0
+  - matplotlib=3.3.4=py36h5fab9bb_0
+  - numpy=1.19.2=py36h54aff64_0
+  - pandas=1.1.5=py36ha9443f7_0
+  - pip=21.2.2=py36h06a4308_0
+  - pyro-api=0.1.2=pyhd8ed1ab_0
+  - pyro-ppl=1.8.0=pyhd8ed1ab_0
+  - python=3.6.13=h12debd9_1
+  - pip:
+    - decida==1.1.5

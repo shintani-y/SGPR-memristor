@@ -1,0 +1,76 @@
+`include "constants.vams"
+`include "disciplines.vams"
+
+// current
+`include "./variables_current.va"
+`include "./xu_current.va"
+`include "./w_vec_current.va"
+`include "./gp_utils_current.va"
+// state
+`include "./variables_state.va"
+`include "./xu_state.va"
+`include "./w_vec_state.va"
+`include "./gp_utils_state.va"
+
+module RRAM(Nt, Nb);
+
+	inout Nt, Nb;
+	electrical Nt, Nb, S_out;
+
+	// current
+	parameter real w_vec_current[0:`N_CURRENT-1] = `W_VEC_CURRENT;
+	parameter real Xu_current[0:(`N_CURRENT * `X_DIM_CURRENT - 1)] = `XU_CURRENT;
+	parameter real lengthscale_current[0:`X_DIM_CURRENT-1] = `LENGTHSCALE_CURRENT;
+	parameter real variance_current = `VARIANCE_CURRENT;
+
+	real kxx_current[0:`N_CURRENT-1];
+	real newX_current[0:`X_DIM_CURRENT-1];
+
+	// state
+	parameter real w_vec_s[0:`N_S-1] = `W_VEC_S;
+	parameter real Xu_s[0:(`N_S * `X_DIM_S - 1)] = `XU_S;
+	parameter real lengthscale_s[0:`X_DIM_S-1] = `LENGTHSCALE_S;
+	parameter real variance_s = `VARIANCE_S;
+
+	real kxx_s[0:`N_S-1];
+	real newX_s[0:`X_DIM_S-1];
+
+	parameter real tstep = 1e-9 from (0:inf);	// Max. internal timestep (s)
+
+
+	integer i,j;
+	real I_out = 0;
+	real S;
+
+	analog begin
+
+		@(initial_step)  begin
+			S = 1.0;
+		end
+
+		$bound_step(tstep);	// Bound the time step
+
+		// create state
+		newX_s[0] = S;
+		newX_s[1] = V(Nt,Nb);
+
+		`gp_s(newX_s, Xu_s, lengthscale_s, variance_s, kxx_s, w_vec_s, S, i, j);
+		if (S < 0.5)
+			S = 0.0;
+		else
+			S = 1.0;
+
+		// create current
+		newX_current[0] = S;
+		newX_current[1] = V(Nt,Nb);
+
+		`gp_current(newX_current, Xu_current, lengthscale_current, variance_current, kxx_current, w_vec_current, I_out, i, j);
+
+		I_out = I_out/pow(10,4);
+		
+		I(Nt,Nb) <+ I_out;
+	
+		V(S_out) <+ S;
+
+	end
+endmodule

@@ -1,0 +1,9 @@
+`define N_S $N
+`define X_DIM_S $X_DIM
+
+`define LENGTHSCALE_S {\
+$LENGTHSCALE
+}
+
+`define VARIANCE_S $VARIANCE
+
